@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Your Account</title>
+</head>
+<body>
+    <h2>Hello {{ user.first_name }} {{ user.last_name }}</h2>
+    <p>Please enter your new password below:</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            {{ form.password1.label_tag }} {{ form.password1 }}
+        </div>
+        <div>
+            {{ form.password2.label_tag }} {{ form.password2 }}
+        </div>
+
+        {% if form.errors %}
+            <p style="color: red;">{{ form.errors }}</p>
+        {% endif %}
+
+        <button type="submit">Set Password & Activate</button>
+    </form>
+</body>
+</html>

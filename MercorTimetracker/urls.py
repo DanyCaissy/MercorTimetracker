@@ -16,8 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from Timetracker.views import activate
+from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path("timetracker/", include("Timetracker.urls")),
     path("admin/", admin.site.urls),
+    path("activate/<uidb64>/<token>/", activate, name="activate"),
+    path("logout/", auth_views.LogoutView.as_view(), name="logout"),
+    path("login/", auth_views.LoginView.as_view(), name="login"),
 ]

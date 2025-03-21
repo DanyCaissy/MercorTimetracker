@@ -25,9 +25,22 @@ from dotenv import load_dotenv
 load_dotenv()  # Load environment variables
 
 SECRET_KEY = os.getenv("SECRET_KEY", "default-unsafe-secret-key")
-
 DEBUG = os.getenv("DEBUG", "False") == "True"  # Convert string to boolean
 
+LOGIN_URL = "/login/"
+LOGIN_REDIRECT_URL = "/timetracker/dashboard/"
+LOGOUT_REDIRECT_URL = "/login/"
+
+if os.getenv("DJANGO_ENV") == "production":
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = "smtp.gmail.com"
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.getenv("EMAIL_USER")
+    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_PASSWORD")
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+    EMAIL_FILE_PATH = "emails"
 ALLOWED_HOSTS = []
 
 

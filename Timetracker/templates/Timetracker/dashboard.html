@@ -10,6 +10,14 @@
     <p><strong>Username:</strong> {{ user.username }}</p>
     <p><strong>Email:</strong> {{ user.email }}</p>
 
+
+    {% if employee %}
+        <p><strong>Job Title:</strong> {{ employee.job_title }}</p>
+        <p><strong>Assigned Project:</strong> {{ employee.project.name|default:"None" }}</p>
+    {% else %}
+        <p>This user does not have an associated employee record.</p>
+    {% endif %}
+
     <h3>Download Software</h3>
     <p>Click the link below to download the tracking software:</p>
     <a href="{{ software_download_url }}" download>Download Software</a>

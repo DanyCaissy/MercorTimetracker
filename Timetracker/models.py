@@ -17,3 +17,29 @@ class Employee(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.job_title}"
+
+
+class WorkSession(models.Model):
+    """ Represents a work session (clock-in and clock-out) """
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    clock_in = models.DateTimeField()
+    clock_out = models.DateTimeField(null=True, blank=True)  # Nullable until they clock out
+    duration = models.PositiveIntegerField(null=True, blank=True)  # Stored in seconds (optional)
+
+    def save(self, *args, **kwargs):
+        """ Automatically calculate duration on save if clock_out is set """
+        if self.clock_in and self.clock_out:
+            self.duration = int((self.clock_out - self.clock_in).total_seconds())
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.employee.user.username} - {self.clock_in} to {self.clock_out or 'Active'}"
+
+class Screenshot(models.Model):
+    """ Stores screenshots taken during a work session """
+    work_session = models.ForeignKey(WorkSession, on_delete=models.CASCADE, related_name="screenshots")
+    timestamp = models.DateTimeField()  # When the screenshot was taken
+    image_path = models.CharField(max_length=500)  # Path to the screenshot file
+
+    def __str__(self):
+        return f"Screenshot for {self.work_session.employee.user.username} at {self.timestamp}"

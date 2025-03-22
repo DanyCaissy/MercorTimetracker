@@ -11,6 +11,7 @@ from django.contrib.auth import login
 from .tokens import account_activation_token
 from .forms import SetPasswordForm  # ✅ Import the password form
 from django.contrib.auth.decorators import login_required
+from .models import Employee
 
 def index(request):
     return HttpResponse("Index Page")
@@ -66,7 +67,14 @@ def activate(request, uidb64, token):
 def dashboard(request):
     software_download_url = "www.google.com"
 
+    # Get the Employee object for the logged-in user
+    try:
+        employee = request.user.employee
+    except Employee.DoesNotExist:
+        employee = None
+
     return render(request, "Timetracker/dashboard.html", {
         "user": request.user,
+        "employee": employee,
         "software_download_url": software_download_url,
     })

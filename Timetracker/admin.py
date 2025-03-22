@@ -2,8 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin
 from django.contrib import admin
-from .models import UserProfile
-from .views import send_activation_email
+from.views import send_activation_email
+from .models import Employee, Project
 
 # Create a Custom Form Without Password Fields
 class CustomUserCreationForm(forms.ModelForm):
@@ -22,9 +22,16 @@ class CustomUserCreationForm(forms.ModelForm):
             user.save()
         return user
 
-class CustomUserAdmin(UserAdmin):
+class EmployeeInline(admin.StackedInline):
+    """ Allows adding Employee details (Job Title, Project) when creating a User """
+    model = Employee
+    extra = 1
 
-    add_form = CustomUserCreationForm  # Replace Django's default form
+
+class CustomUserAdmin(UserAdmin):
+    """ Extends UserAdmin to include Employee creation """
+
+    add_form = CustomUserCreationForm
 
     add_fieldsets = (
         ("User Info", {"fields": ("username", "email", "first_name", "last_name")}),
@@ -32,18 +39,37 @@ class CustomUserAdmin(UserAdmin):
 
     list_display = ("username", "email", "first_name", "last_name", "is_staff")
 
-    def save_model(self, request, obj, form, change):
-        """ Ensure email is not empty and set user inactive by default """
-        if not obj.email:
-            raise ValueError("Email cannot be empty!")  # Prevent saving without email
+    inlines = [EmployeeInline]
 
-        if not change:  # If the user is being created, not updated
-            obj.is_active = False  # Default inactive
-            obj.set_unusable_password()  # Prevents login until user sets their own password
-            obj.save()
+    def save_model(self, request, obj, form, change):
+        """ Ensure email is not empty, create Employee, and send activation email """
+        if not obj.email:
+            raise ValueError("Email cannot be empty!")
+
+        is_new = not change
+
+        if is_new:
+            obj.is_active = False  # Set user as inactive before saving
+            obj.set_unusable_password()  # Require them to set their own password
+
+        super().save_model(request, obj, form, change)  # Save the user
+
+        if is_new:
             send_activation_email(obj, request)  # Send activation email
 
-        super().save_model(request, obj, form, change)  # Call the original save method
+admin.site.unregister(User)
+admin.site.register(User, CustomUserAdmin)
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ("name", "start_date")
+    search_fields = ("name",)
+
+@admin.register(Employee)
+class EmployeeAdmin(admin.ModelAdmin):
+    list_display = ("user", "job_title", "project")
+    search_fields = ("user__username", "job_title")
+    list_filter = ("project",)
 
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)

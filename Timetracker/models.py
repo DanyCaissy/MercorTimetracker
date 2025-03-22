@@ -22,6 +22,7 @@ class Employee(models.Model):
 class WorkSession(models.Model):
     """ Represents a work session (clock-in and clock-out) """
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.SET_NULL, null=True, blank=True)
     clock_in = models.DateTimeField()
     clock_out = models.DateTimeField(null=True, blank=True)  # Nullable until they clock out
     duration = models.PositiveIntegerField(null=True, blank=True)  # Stored in seconds (optional)
@@ -38,7 +39,7 @@ class WorkSession(models.Model):
 class Screenshot(models.Model):
     """ Stores screenshots taken during a work session """
     work_session = models.ForeignKey(WorkSession, on_delete=models.CASCADE, related_name="screenshots")
-    timestamp = models.DateTimeField()  # When the screenshot was taken
+    timestamp = models.DateTimeField(auto_now_add=True)
     image_path = models.CharField(max_length=500)  # Path to the screenshot file
 
     def __str__(self):

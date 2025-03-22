@@ -43,6 +43,12 @@ else:
     EMAIL_FILE_PATH = "emails"
 ALLOWED_HOSTS = []
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+}
 
 # Application definition
 
@@ -55,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "Timetracker.apps.TimetrackerConfig",
     "api.apps.ApiConfig",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [

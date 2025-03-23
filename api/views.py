@@ -12,16 +12,24 @@ from django.contrib.auth import authenticate
 
 @api_view(["POST"])
 def login_api(request):
-    """Authenticate user and return success or failure"""
+    """Authenticate user and return user_id + employee_id (if exists)"""
     username = request.data.get("username")
     password = request.data.get("password")
 
     if not username or not password:
-        return JsonResponse({"status": "failed", "error": "Username and password required"}, status=400)
+        return JsonResponse({"error": "Username and password required"}, status=400)
 
     user = authenticate(username=username, password=password)
     if user is not None:
-        return JsonResponse({"status": "success"}, status=200)
+        # Get employee_id if the user is an employee
+        employee = Employee.objects.filter(user=user).first()
+        employee_id = employee.id if employee else None
+
+        return JsonResponse({
+            "status": "success",
+            "user_id": user.id,
+            "employee_id": employee_id
+        }, status=200)
 
     return JsonResponse({"status": "failed", "error": "Invalid credentials"}, status=401)
 

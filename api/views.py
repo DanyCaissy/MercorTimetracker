@@ -7,6 +7,23 @@ from rest_framework.response import Response
 from rest_framework import status
 from Timetracker.models import Project, WorkSession, Screenshot, Employee
 from .serializers import ProjectSerializer, WorkSessionSerializer, ScreenshotSerializer, EmployeeSerializer
+from django.contrib.auth import authenticate
+
+
+@api_view(["POST"])
+def login_api(request):
+    """Authenticate user and return success or failure"""
+    username = request.data.get("username")
+    password = request.data.get("password")
+
+    if not username or not password:
+        return JsonResponse({"status": "failed", "error": "Username and password required"}, status=400)
+
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        return JsonResponse({"status": "success"}, status=200)
+
+    return JsonResponse({"status": "failed", "error": "Invalid credentials"}, status=401)
 
 @api_view(["GET"])
 def list_employees(request):

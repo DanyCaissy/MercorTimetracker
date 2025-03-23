@@ -3,7 +3,7 @@ from .views import (
     list_create_projects, project_detail,
     clock_in, clock_out, get_work_sessions,
     upload_screenshot, get_screenshots, list_employees,
-    get_employee
+    get_employee, login_api
 )
 
 urlpatterns = [
@@ -21,4 +21,6 @@ urlpatterns = [
     # Screenshots
     path("screenshots/upload/", upload_screenshot, name="screenshot-upload"),
     path("screenshots/<int:session_id>/", get_screenshots, name="screenshot-list"),
+
+    path("login/", login_api, name="login_api"),
 ]

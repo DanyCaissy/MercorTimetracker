@@ -4,32 +4,142 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Container */
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            padding: 25px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        p {
+            font-size: 14px;
+            margin: 8px 0;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        a {
+            text-decoration: none;
+            color: blue;
+        }
+
+        /* Buttons */
+        .download-btn, .logout-btn {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 14px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .download-btn {
+            background-color: #0073e6;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background-color: #005bb5;
+        }
+
+        .logout-btn {
+            background-color: #d9534f;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background-color: #c9302c;
+        }
+    </style>
 </head>
 <body>
-    <h2>Welcome, {{ user.first_name }} {{ user.last_name }}!</h2>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
 
+    <div class="container">
+        <h2>Welcome, {{ user.first_name }} {{ user.last_name }}!</h2>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
 
-    {% if employee %}
-        <p><strong>Job Title:</strong> {{ employee.job_title }}</p>
-        <p><strong>Assigned Project:</strong> {{ employee.project.name|default:"None" }}</p>
-    {% else %}
-        <p>This user does not have an associated employee record.</p>
-    {% endif %}
+        {% if employee %}
+            <p><strong>Job Title:</strong> {{ employee.job_title }}</p>
+            <p><strong>Assigned Project:</strong> {{ employee.project.name|default:"None" }}</p>
+        {% else %}
+            <p style="color: red;">This user does not have an associated employee record.</p>
+        {% endif %}
 
-    <h3>Download Software</h3>
-    <p>Click the link below to download the tracking software:</p>
-    <a href="{{ software_download_url }}" download>Download Software</a>
+        <h3>Download Software</h3>
+        <p>Click the button below to download the tracking software:</p>
+        <a href="{{ software_download_url }}" class="download-btn" download>Download Software</a>
 
-    <p>
+        <h3>Last 5 Work Sessions</h3>
+        <table>
+            <tr>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Duration</th>
+                <th>Screenshots</th>
+            </tr>
+            {% for session in work_sessions %}
+            <tr>
+                <td>{{ session.clock_in }}</td>
+                <td>{{ session.clock_out|default:"Active" }}</td>
+                <td>{{ session.duration|default:"-" }} seconds</td>
+                <td>
+                    {% for screenshot in session.screenshots.all %}
+                        <a href="/{{ screenshot.image_path }}" target="_blank">View</a>
+                    {% empty %}
+                        No screenshots
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
 
+        <!-- Logout Form -->
         <form method="post" action="{% url 'logout' %}">
             {% csrf_token %}
-            <button type="submit">Logout</button>
+            <button type="submit" class="logout-btn">Logout</button>
         </form>
 
-    </p>
+    </div>
 
 </body>
 </html>

@@ -5,38 +5,112 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        a { text-decoration: none; color: blue; }
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header */
+        .header {
+            background-color: #0073e6;
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        /* Container */
+        .container {
+            width: 90%;
+            max-width: 1000px;
+            background: white;
+            margin: 30px auto;
+            padding: 20px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f8f8f8;
+            font-weight: bold;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #eef7ff;
+        }
+
+        /* Screenshot Button */
+        .screenshot-btn {
+            display: inline-block;
+            padding: 6px 10px;
+            background-color: #0073e6;
+            color: white;
+            border: none;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .screenshot-btn:hover {
+            background-color: #005bb5;
+        }
     </style>
 </head>
 <body>
-    <h2>Last 10 Work Sessions</h2>
-    <table>
-        <tr>
-            <th>Employee</th>
-            <th>Clock In</th>
-            <th>Clock Out</th>
-            <th>Duration</th>
-            <th>Screenshots</th>
-        </tr>
-        {% for session in work_sessions %}
-        <tr>
-            <td>{{ session.employee.user.username }}</td>
-            <td>{{ session.clock_in }}</td>
-            <td>{{ session.clock_out|default:"Active" }}</td>
-            <td>{{ session.duration|default:"-" }} seconds</td>
-            <td>
-                {% for screenshot in session.screenshots.all %}
-                    <a href="/{{ screenshot.image_path|slice:'6:' }}" target="_blank">View</a>
-                {% empty %}
-                    No screenshots
-                {% endfor %}
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+
+    <!-- Header -->
+    <div class="header">
+        Admin Dashboard
+    </div>
+
+    <div class="container">
+        <h2>Last 10 Work Sessions</h2>
+        <table>
+            <tr>
+                <th>Employee</th>
+                <th>Clock In</th>
+                <th>Clock Out</th>
+                <th>Duration</th>
+                <th>Screenshots</th>
+            </tr>
+            {% for session in work_sessions %}
+            <tr>
+                <td>{{ session.employee.user.username }}</td>
+                <td>{{ session.clock_in }}</td>
+                <td>{{ session.clock_out|default:"Active" }}</td>
+                <td>{{ session.duration|default:"-" }} seconds</td>
+                <td>
+                    {% for screenshot in session.screenshots.all %}
+                        <a href="/{{ screenshot.image_path }}" target="_blank" class="screenshot-btn">View</a>
+                    {% empty %}
+                        No screenshots
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
 </body>
 </html>

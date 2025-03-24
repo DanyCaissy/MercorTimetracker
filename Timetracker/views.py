@@ -71,18 +71,21 @@ def activate(request, uidb64, token):
     else:
         return HttpResponse("Activation was not successful.")
 
-@login_required  #  Ensures only logged-in users can access this page
+@login_required
 def dashboard(request):
     software_download_url = "www.google.com"
 
     # Get the Employee object for the logged-in user
     try:
         employee = request.user.employee
+        work_sessions = WorkSession.objects.filter(employee=employee).order_by('-clock_in')[:5]  # Get last 5 sessions
     except Employee.DoesNotExist:
         employee = None
+        work_sessions = []
 
     return render(request, "Timetracker/dashboard.html", {
         "user": request.user,
         "employee": employee,
+        "work_sessions": work_sessions,
         "software_download_url": software_download_url,
     })

@@ -26,6 +26,9 @@ class WorkSession(models.Model):
     clock_in = models.DateTimeField()
     clock_out = models.DateTimeField(null=True, blank=True)  # Nullable until they clock out
     duration = models.PositiveIntegerField(null=True, blank=True)  # Stored in seconds (optional)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)  # New field for IP
+    mac_address = models.CharField(max_length=50, null=True, blank=True)  # New field for MAC
+
 
     def save(self, *args, **kwargs):
         """ Automatically calculate duration on save if clock_out is set """

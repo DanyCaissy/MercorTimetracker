@@ -95,6 +95,7 @@ def project_detail(request, project_id):
 def clock_in(request):
     """ Clock-in an employee to a work session """
     employee_id = request.data.get("employee_id")
+    mac_address = request.data.get("mac_address")
 
     try:
         employee = Employee.objects.get(id=employee_id)
@@ -103,12 +104,22 @@ def clock_in(request):
         if WorkSession.objects.filter(employee=employee, clock_out__isnull=True).exists():
             return Response({"error": "Employee is already checked in"}, status=status.HTTP_400_BAD_REQUEST)
 
-        project = None
+        project = employee.project if employee.project else None
 
-        if employee.project:
-            project = employee.project
+        ip_address = request.META.get("HTTP_X_FORWARDED_FOR")
+        if ip_address:
+            ip_address = ip_address.split(",")[0]
+        else:
+            ip_address = request.META.get("REMOTE_ADDR")
 
-        session = WorkSession.objects.create(employee=employee, project=project, clock_in=now())
+        session = WorkSession.objects.create(
+            employee=employee,
+            project=project,
+            clock_in=now(),
+            ip_address=ip_address,
+            mac_address=mac_address
+        )
+
         serializer = WorkSessionSerializer(session)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -168,13 +179,23 @@ def upload_screenshot(request):
     except ObjectDoesNotExist:
         return Response({"error": "Invalid work session ID"}, status=status.HTTP_404_NOT_FOUND)
 
-    # Only accept image_path, timestamp is automatically set
-    serializer = ScreenshotSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(work_session=work_session)  # Assign valid work session
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # Ensure an image file is uploaded
+    if "image_path" not in request.FILES:
+        return Response({"error": "No image file provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    uploaded_file = request.FILES["image_path"]
+    file_path = f"media/screenshots/{uploaded_file.name}"  # Save in media/screenshots/
+
+    # Save file to media folder
+    with open(file_path, "wb") as f:
+        for chunk in uploaded_file.chunks():
+            f.write(chunk)
+
+    # Save the screenshot record
+    screenshot = Screenshot.objects.create(work_session=work_session, image_path=file_path)
+
+    return Response({"message": "Screenshot uploaded successfully!", "file_path": file_path},
+                    status=status.HTTP_201_CREATED)
 
 
 @api_view(["GET"])

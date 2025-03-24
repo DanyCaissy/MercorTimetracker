@@ -115,6 +115,7 @@
                 <th>Clock In</th>
                 <th>Clock Out</th>
                 <th>Duration</th>
+                <th>Project</th>
                 <th>Screenshots</th>
             </tr>
             {% for session in work_sessions %}
@@ -122,9 +123,10 @@
                 <td>{{ session.clock_in }}</td>
                 <td>{{ session.clock_out|default:"Active" }}</td>
                 <td>{{ session.duration|default:"-" }} seconds</td>
+                <td>{{ session.project.name|default:"No Project" }}</td>
                 <td>
                     {% for screenshot in session.screenshots.all %}
-                        <a href="/{{ screenshot.image_path }}" target="_blank">View</a>
+                        <a href="/{{ screenshot.image_path|slice:'6:' }}" target="_blank">View</a>
                     {% empty %}
                         No screenshots
                     {% endfor %}

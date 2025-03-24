@@ -11,10 +11,18 @@ from django.contrib.auth import login
 from .tokens import account_activation_token
 from .forms import SetPasswordForm  # ✅ Import the password form
 from django.contrib.auth.decorators import login_required
-from .models import Employee
+from .models import Employee, WorkSession
 
 def index(request):
-    return HttpResponse("Index Page")
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            work_sessions = WorkSession.objects.all().order_by('-clock_in')[:10]
+            return render(request, "Timetracker/admin_dashboard.html", {
+                "work_sessions": work_sessions,
+            })
+        else:
+            return redirect("dashboard")
+    return redirect("login")
 
 def send_activation_email(user, request):
     """ Send activation email to the new user """

@@ -136,13 +136,22 @@ def clock_out(request):
 
 @api_view(["GET"])
 def get_work_sessions(request, employee_id):
-    """ Get all work sessions for an employee, or return 404 if employee doesn't exist """
+    """ Get all work sessions for an employee, or return the most recent X sessions if 'limit' is provided """
     try:
         employee = Employee.objects.get(id=employee_id)
     except ObjectDoesNotExist:
         return Response({"error": "Employee not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    sessions = WorkSession.objects.filter(employee=employee)
+    # Get the 'limit' parameter from the request (optional)
+    limit = request.query_params.get("limit")
+
+    # Fetch work sessions, ordered by most recent first
+    sessions = WorkSession.objects.filter(employee=employee).order_by("-clock_in")
+
+    # Apply limit if specified and valid
+    if limit and limit.isdigit():
+        sessions = sessions[:int(limit)]
+
     serializer = WorkSessionSerializer(sessions, many=True)
     return Response(serializer.data)
 

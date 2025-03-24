@@ -75,8 +75,6 @@ def activate(request, uidb64, token):
 
 @login_required
 def dashboard(request):
-    software_download_url = "www.google.com"
-
     # Get the Employee object for the logged-in user
     try:
         employee = request.user.employee

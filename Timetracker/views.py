@@ -12,6 +12,8 @@ from .tokens import account_activation_token
 from .forms import SetPasswordForm  # ✅ Import the password form
 from django.contrib.auth.decorators import login_required
 from .models import Employee, WorkSession
+from django.conf import settings
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -87,5 +89,5 @@ def dashboard(request):
         "user": request.user,
         "employee": employee,
         "work_sessions": work_sessions,
-        "software_download_url": software_download_url,
+        "software_download_url": settings.SOFTWARE_DOWNLOAD_URL,
     })

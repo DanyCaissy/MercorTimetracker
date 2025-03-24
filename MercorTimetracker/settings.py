@@ -31,6 +31,8 @@ LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/timetracker/dashboard/"
 LOGOUT_REDIRECT_URL = "/login/"
 
+SOFTWARE_DOWNLOAD_URL = os.getenv("SOFTWARE_DOWNLOAD_URL")
+
 if os.getenv("DJANGO_ENV") == "production":
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
     EMAIL_HOST = "smtp.gmail.com"
